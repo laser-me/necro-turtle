@@ -1,0 +1,8 @@
+{
+  "name": "Build Check",
+  "description": "Verify TypeScript compiles and production build succeeds",
+  "trigger": "onSave",
+  "filePattern": "**/*.ts",
+  "action": "command",
+  "command": "npm run type-check"
+}

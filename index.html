@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🦴 Necro-Turtle: Necromancy Logo Programming</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="title">🦴 NECRO-TURTLE</h1>
+      <p class="subtitle">Resurrect the ancient art of turtle graphics with dark magic</p>
+    </header>
+
+    <div class="controls">
+      <div class="control-group">
+        <label for="mode-select">Mode:</label>
+        <select id="mode-select" class="select">
+          <option value="freedraw">Free Draw</option>
+          <option value="quest">Quest Mode</option>
+        </select>
+      </div>
+
+      <div class="control-group" id="example-group">
+        <label for="example-select">Example Ritual:</label>
+        <select id="example-select" class="select">
+          <option value="">-- Select Example --</option>
+        </select>
+      </div>
+
+      <div class="control-group hidden" id="quest-group">
+        <label for="quest-select">Quest:</label>
+        <select id="quest-select" class="select">
+          <option value="">-- Select Quest --</option>
+        </select>
+      </div>
+
+      <button id="clear-btn" class="btn btn-secondary">Clear Grave</button>
+      <button id="reset-btn" class="btn btn-secondary">Reset Turtle</button>
+    </div>
+
+    <div class="game-hud hidden" id="game-hud">
+      <div class="hud-item">
+        <span class="hud-label">Quest:</span>
+        <span id="quest-name" class="hud-value">-</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Score:</span>
+        <span id="score" class="hud-value">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Souls:</span>
+        <span id="souls" class="hud-value">0/0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Commands:</span>
+        <span id="commands" class="hud-value">0</span>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="canvas-container">
+        <canvas id="canvas" width="800" height="600"></canvas>
+      </div>
+
+      <div class="editor-container">
+        <div class="editor-header">
+          <h3>Command Grimoire</h3>
+        </div>
+        <textarea id="code-editor" class="code-editor" placeholder="// Write your necromancy commands here...
+// Example:
+summon(100);
+turnRight(90);
+summon(100);"></textarea>
+        <button id="execute-btn" class="btn btn-primary">🔮 Cast Spell</button>
+
+        <div class="output-container">
+          <div class="output-header">Ritual Output</div>
+          <div id="output" class="output"></div>
+        </div>
+
+        <div class="objectives-container hidden" id="objectives-container">
+          <div class="objectives-header">Quest Objectives</div>
+          <div id="objectives" class="objectives"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
