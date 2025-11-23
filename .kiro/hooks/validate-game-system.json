@@ -1,0 +1,6 @@
+{
+  "name": "Validate Game System",
+  "description": "Check that game entities, collision detection, and quest system are properly implemented",
+  "trigger": "manual",
+  "prompt": "Review the game system implementation and verify: 1) All entity types (soul, demon, building, obstacle) are defined and render correctly, 2) Collision detection works for entity interactions, 3) Quest objectives can be completed, 4) Game state updates correctly, 5) Visual feedback triggers on game events. Report any missing or incomplete implementations."
+}

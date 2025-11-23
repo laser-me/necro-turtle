@@ -14,31 +14,56 @@ This project brings back the beloved Logo programming language from the 1960s-80
 
 ## ✨ Features
 
-- **12 Necromancy Commands** - Control the spectral turtle with dark magic
-- **5 Example Rituals** - Pre-written programs to get you started
+- **17+ Necromancy Commands** - Control the spectral turtle with dark magic
+- **Two Game Modes** - Free Draw for creativity, Quest Mode for challenges
+- **Quest System** - Complete necromancy tasks and collect souls
+- **Interactive Entities** - Souls to collect, demons to banish, buildings to explore
+- **5+ Example Rituals** - Pre-written programs to get you started
 - **Dark Gothic UI** - Immersive necromancy atmosphere
 - **Real-time Execution** - Watch your rituals come to life
 - **Glowing Trails** - Mystical green/purple effects
+- **Score Tracking** - Compete for the highest necromancer rank
 
 ## 🕯️ Necromancy Command Reference
 
+### Movement Commands
 | Command | Parameters | Description | Example |
 |---------|-----------|-------------|---------|
 | `summon(distance)` | distance: number | Move the turtle forward | `summon(100)` |
 | `banish(distance)` | distance: number | Move the turtle backward | `banish(50)` |
 | `turnLeft(angle)` | angle: degrees | Rotate counterclockwise | `turnLeft(90)` |
 | `turnRight(angle)` | angle: degrees | Rotate clockwise | `turnRight(45)` |
+| `haunt(x, y)` | x, y: coordinates | Teleport to position | `haunt(400, 300)` |
+
+### Drawing Commands
+| Command | Parameters | Description | Example |
+|---------|-----------|-------------|---------|
 | `raiseSpirit()` | none | Lift pen (stop drawing) | `raiseSpirit()` |
 | `bindSpirit()` | none | Lower pen (start drawing) | `bindSpirit()` |
 | `conjureColor(color)` | color: string | Change trail color | `conjureColor('#00ff88')` |
-| `haunt(x, y)` | x, y: coordinates | Teleport to position | `haunt(400, 300)` |
+| `setLineWidth(width)` | width: number | Set trail thickness | `setLineWidth(3)` |
+
+### Utility Commands
+| Command | Parameters | Description | Example |
+|---------|-----------|-------------|---------|
 | `ritual(count, fn)` | count: number, fn: function | Repeat commands | `ritual(4, () => summon(100))` |
 | `clearGrave()` | none | Clear the canvas | `clearGrave()` |
 | `resurrect()` | none | Reset turtle to center | `resurrect()` |
 
+### Game/Spell Commands
+| Command | Parameters | Description | Example |
+|---------|-----------|-------------|---------|
+| `castSpell(name)` | name: string | Cast spell at location | `castSpell('banish')` |
+| `collectSoul()` | none | Collect soul at position | `collectSoul()` |
+| `banishDemon()` | none | Banish demon at location | `banishDemon()` |
+| `checkQuest()` | none | Check quest status | `checkQuest()` |
+| `getPosition()` | none | Get turtle coordinates | `getPosition()` |
+
 ## 📜 Example Rituals
 
-### Summoning Circle (Pentagram)
+### Free Draw Mode
+
+**Summoning Circle (Pentagram)**
 ```javascript
 ritual(5, () => {
   summon(150);
@@ -46,7 +71,7 @@ ritual(5, () => {
 });
 ```
 
-### Spirit Path (Spiral)
+**Spirit Path (Spiral)**
 ```javascript
 for(let i = 0; i < 100; i++) {
   summon(i * 2);
@@ -54,7 +79,7 @@ for(let i = 0; i < 100; i++) {
 }
 ```
 
-### Grave Marker (Cross)
+**Grave Marker (Cross)**
 ```javascript
 summon(100);
 banish(50);
@@ -64,12 +89,48 @@ banish(100);
 summon(50);
 ```
 
+### Quest Mode
+
+**Soul Collector**
+```javascript
+// Navigate to each soul and collect it
+haunt(150, 200);
+collectSoul();
+haunt(400, 300);
+collectSoul();
+// ... collect all souls to win!
+```
+
+**Demon Hunter**
+```javascript
+// Move to demon locations and banish them
+summon(200);
+turnRight(45);
+summon(100);
+banishDemon(); // Banish the first demon
+// ... continue hunting!
+```
+
 ## 🚀 Getting Started
 
-1. Open `index.html` in a modern web browser
-2. Select an example ritual from the dropdown or write your own
-3. Click "Cast Spell" to execute your necromancy code
-4. Watch the spectral turtle draw your dark designs
+### Installation
+```bash
+npm install
+npm run dev
+```
+
+### Usage
+1. Choose between **Free Draw** or **Quest Mode**
+2. In Free Draw: Select an example ritual or write your own
+3. In Quest Mode: Select a quest and write code to complete objectives
+4. Click "Cast Spell" to execute your necromancy code
+5. Watch the spectral turtle complete your dark designs
+
+### Building for Production
+```bash
+npm run build
+npm run preview
+```
 
 ## 🛠️ Technology Stack
 
@@ -84,11 +145,22 @@ summon(50);
 necro-turtle/
 ├── index.html          # Main application page
 ├── styles.css          # Dark gothic styling
-├── turtle.js           # Core turtle graphics engine
-├── necromancy.js       # Necromancy command API
-├── parser.js           # Command parser and executor
-├── effects.js          # Visual effects and animations
-├── examples.js         # Pre-written example rituals
+├── package.json        # Dependencies
+├── tsconfig.json       # TypeScript configuration
+├── vite.config.ts      # Vite bundler config
+├── src/
+│   ├── main.ts         # Application entry point
+│   ├── types.ts        # TypeScript interfaces
+│   ├── turtle.ts       # Core turtle graphics engine
+│   ├── necromancy.ts   # Necromancy command API
+│   ├── parser.ts       # Command parser and executor
+│   ├── effects.ts      # Visual effects and animations
+│   ├── game.ts         # Game state and quest manager
+│   ├── entities.ts     # Game entities (souls, demons, buildings)
+│   ├── collision.ts    # Collision detection
+│   ├── levels.ts       # Quest definitions
+│   ├── ui.ts           # UI component management
+│   └── examples.ts     # Pre-written example rituals
 └── .kiro/              # Kiro AI development artifacts
     ├── steering/       # Project guidance documents
     ├── hooks/          # Automated workflow hooks

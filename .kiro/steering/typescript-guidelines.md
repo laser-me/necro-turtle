@@ -28,12 +28,54 @@ interface Ritual {
   name: string;
   description: string;
   code: string;
+  category: 'freedraw' | 'quest';
 }
 
 interface EffectConfig {
   color: string;
   intensity: number;
   duration: number;
+}
+
+// Game System Types
+interface Entity {
+  id: string;
+  type: 'soul' | 'demon' | 'building' | 'obstacle';
+  position: Point;
+  radius: number;
+  active: boolean;
+  sprite?: string;
+}
+
+interface QuestObjective {
+  type: 'collect' | 'banish' | 'reach' | 'draw' | 'cast';
+  target: string;
+  count: number;
+  completed: boolean;
+  description: string;
+}
+
+interface Quest {
+  id: string;
+  name: string;
+  description: string;
+  objectives: QuestObjective[];
+  entities: Entity[];
+  startPosition: Point;
+  successMessage: string;
+  hints?: string[];
+}
+
+interface GameState {
+  mode: 'freedraw' | 'quest';
+  currentQuest?: Quest;
+  score: number;
+  soulsCollected: number;
+  demonsBanished: number;
+  questsCompleted: number;
+  commandsUsed: number;
+  entities: Entity[];
+  objectives: QuestObjective[];
 }
 ```
 
