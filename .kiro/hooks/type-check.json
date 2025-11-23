@@ -1,0 +1,8 @@
+{
+  "name": "TypeScript Type Check",
+  "description": "Run TypeScript compiler to check for type errors",
+  "trigger": "onSave",
+  "filePattern": "**/*.ts",
+  "action": "command",
+  "command": "npx tsc --noEmit"
+}

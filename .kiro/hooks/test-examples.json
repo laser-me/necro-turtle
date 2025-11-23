@@ -1,0 +1,7 @@
+{
+  "name": "Test Example Rituals",
+  "description": "Automatically test all example necromancy rituals when code changes",
+  "trigger": "onSave",
+  "filePattern": "**/*.{ts,html}",
+  "prompt": "Run through all the example necromancy rituals (summoning circle, spirit path, grave marker, haunted house, necromancer's sigil) and verify they execute without errors. Check the console for any issues and report back on which examples work correctly."
+}

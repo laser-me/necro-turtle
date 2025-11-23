@@ -1,0 +1,7 @@
+{
+  "name": "Update Command Reference",
+  "description": "Automatically update README when new commands are added",
+  "trigger": "onSave",
+  "filePattern": "**/necromancy.ts",
+  "prompt": "Scan necromancy.ts for all available commands and update the README.md with a complete command reference table including command name, parameters, description, and example usage. Keep the necromancy theme consistent."
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Validate Necromancy Commands",
+  "description": "Check that all necromancy commands are properly implemented",
+  "trigger": "manual",
+  "prompt": "Review the necromancy command implementations and verify that all commands from the project overview are implemented: summon, banish, turnLeft, turnRight, raiseSpirit, bindSpirit, conjureColor, haunt, ritual, clearGrave, and resurrect. Report any missing or incomplete implementations."
+}
