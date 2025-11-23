@@ -76,6 +76,10 @@ export class UIManager {
 
     output.innerHTML = `<div class="output-${result.success ? 'success' : 'error'}">${result.message}</div>`;
     
+    // Update entities rendering after execution
+    const entities = this.gameManager.getEntities();
+    this.turtle.setEntities(entities);
+    
     this.updateUI();
   }
 
@@ -146,6 +150,7 @@ export class UIManager {
       if (quest) {
         this.gameManager.loadQuest(quest);
         this.turtle.reset();
+        this.turtle.setEntities(quest.entities);
         this.updateUI();
       }
     });

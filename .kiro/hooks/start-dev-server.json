@@ -1,0 +1,6 @@
+{
+  "name": "Start Dev Server",
+  "description": "Start Vite development server to test the application in browser",
+  "trigger": "manual",
+  "prompt": "Start the Vite development server using 'npm run dev' and report the URL where the application is running. Check if the server starts successfully and if there are any errors in the console."
+}

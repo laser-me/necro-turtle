@@ -1,10 +1,12 @@
-import type { Point, TurtleState } from './types';
+import type { Point, TurtleState, Entity } from './types';
+import { renderEntities } from './entities';
 
 export class Turtle {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private state: TurtleState;
   private trail: Point[] = [];
+  private entities: Entity[] = [];
 
   constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
     this.canvas = canvas;
@@ -28,10 +30,20 @@ export class Turtle {
     return { ...this.state.position };
   }
 
+  setEntities(entities: Entity[]): void {
+    this.entities = entities;
+    this.render();
+  }
+
   render(): void {
     // Clear canvas
     this.ctx.fillStyle = '#000000';
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Draw entities first (background layer)
+    if (this.entities.length > 0) {
+      renderEntities(this.ctx, this.entities);
+    }
 
     // Draw trail
     if (this.trail.length > 1) {
