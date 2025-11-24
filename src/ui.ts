@@ -48,6 +48,10 @@ export class UIManager {
     const resetBtn = document.getElementById('reset-btn');
     resetBtn?.addEventListener('click', () => this.resetTurtle());
 
+    // Clear editor button
+    const clearEditorBtn = document.getElementById('clear-editor-btn');
+    clearEditorBtn?.addEventListener('click', () => this.clearEditor());
+
     // Example selector
     const exampleSelect = document.getElementById('example-select') as HTMLSelectElement;
     exampleSelect?.addEventListener('change', () => this.loadExample(exampleSelect.value));
@@ -108,6 +112,15 @@ export class UIManager {
     this.gameManager.reset();
     this.updateUI();
     this.logOutput('The turtle has been resurrected at the center.', 'info');
+  }
+
+  private clearEditor(): void {
+    const editor = document.getElementById('code-editor') as HTMLTextAreaElement;
+    if (editor) {
+      editor.value = '';
+      editor.focus();
+      this.logOutput('Command grimoire cleared.', 'info');
+    }
   }
 
   private loadExample(exampleName: string): void {
@@ -281,7 +294,7 @@ export class UIManager {
         });
 
         // Position tooltip on hover
-        cmdDiv.addEventListener('mouseenter', (e) => {
+        cmdDiv.addEventListener('mouseenter', () => {
           const tooltip = cmdDiv.querySelector('.command-tooltip') as HTMLElement;
           if (tooltip) {
             const rect = cmdDiv.getBoundingClientRect();

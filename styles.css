@@ -8,13 +8,20 @@ body {
   font-family: 'Courier New', monospace;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a0033 100%);
   color: #00ff88;
-  min-height: 100vh;
-  padding: 20px;
+  height: 100vh;
+  margin: 0;
+  padding: 10px;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .container {
   max-width: 1400px;
   margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .top-section {
@@ -34,7 +41,7 @@ body {
 }
 
 .section-toggle {
-  position: absolute;
+  position: fixed;
   top: 10px;
   right: 10px;
   background: rgba(0, 0, 0, 0.7);
@@ -44,7 +51,7 @@ body {
   height: 40px;
   cursor: pointer;
   transition: all 0.3s;
-  z-index: 10;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -164,6 +171,29 @@ body {
   box-shadow: 0 0 10px #bb88ff;
 }
 
+.btn-small {
+  padding: 10px 15px;
+  font-size: 18px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #ff4444;
+  border-color: #ff4444;
+}
+
+.btn-small:hover {
+  background: rgba(255, 68, 68, 0.2);
+  box-shadow: 0 0 10px #ff4444;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.editor-actions .btn-primary {
+  flex: 1;
+}
+
 .game-hud {
   display: flex;
   gap: 20px;
@@ -193,6 +223,9 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .canvas-container {
@@ -201,12 +234,16 @@ body {
   border-radius: 8px;
   padding: 10px;
   box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 #canvas {
   display: block;
-  width: 100%;
-  height: auto;
+  max-width: 100%;
+  max-height: 100%;
   background: #000000;
 }
 
@@ -214,6 +251,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .editor-header {
@@ -255,11 +294,15 @@ body {
   display: flex;
   gap: 10px;
   position: relative;
+  align-items: flex-start;
+  flex: 1;
+  min-height: 0;
 }
 
 .code-editor {
   flex: 1;
-  min-height: 300px;
+  height: 100%;
+  width: 100%;
   background: #0a0a0a;
   color: #00ff88;
   border: 2px solid #00ff88;
@@ -267,8 +310,9 @@ body {
   padding: 15px;
   font-family: 'Courier New', monospace;
   font-size: 14px;
-  resize: vertical;
+  resize: none;
   line-height: 1.5;
+  box-sizing: border-box;
 }
 
 .code-editor:focus {
@@ -281,14 +325,18 @@ body {
   background: rgba(0, 0, 0, 0.8);
   border: 2px solid #bb88ff;
   border-radius: 8px;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
-  max-height: 400px;
+  height: 100%;
+  flex-shrink: 0;
 }
 
 .commands-panel.hidden {
   display: none;
+}
+
+.editor-wrapper:has(.commands-panel:not(.hidden)) .code-editor {
+  width: calc(100% - 260px);
 }
 
 .commands-header {
@@ -305,6 +353,8 @@ body {
   overflow-x: hidden;
   padding: 10px;
   flex: 1;
+  min-height: 0;
+  overscroll-behavior: contain;
 }
 
 .command-item {
@@ -314,14 +364,13 @@ body {
   border: 1px solid #bb88ff;
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s, box-shadow 0.2s;
   position: relative;
 }
 
 .command-item:hover {
   background: rgba(187, 136, 255, 0.3);
   box-shadow: 0 0 10px rgba(187, 136, 255, 0.5);
-  transform: translateX(5px);
 }
 
 .command-name {
@@ -370,6 +419,15 @@ body {
   border: 2px solid #bb88ff;
   border-radius: 8px;
   overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.top-section.collapsed ~ .game-hud ~ .main-content .output-container {
+  max-height: 60px;
+}
+
+.top-section.collapsed ~ .game-hud ~ .main-content .output {
+  max-height: 40px;
 }
 
 .output-header {
@@ -382,8 +440,8 @@ body {
 
 .output {
   padding: 15px;
-  min-height: 100px;
-  max-height: 200px;
+  min-height: 50px;
+  max-height: 150px;
   overflow-y: auto;
   font-size: 14px;
   line-height: 1.6;
@@ -406,6 +464,16 @@ body {
   border: 2px solid #00ff88;
   border-radius: 8px;
   overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.top-section.collapsed ~ .game-hud ~ .main-content .objectives-container {
+  max-height: 80px;
+}
+
+.top-section.collapsed ~ .game-hud ~ .main-content .objectives {
+  max-height: 60px;
+  overflow-y: auto;
 }
 
 .objectives-header {
@@ -418,6 +486,8 @@ body {
 
 .objectives {
   padding: 15px;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .objective-item {
@@ -459,9 +529,113 @@ body {
 @media (max-width: 1200px) {
   .main-content {
     grid-template-columns: 1fr;
+    grid-template-rows: 50% 50%;
   }
   
   .title {
     font-size: 2em;
+  }
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  body {
+    padding: 5px;
+  }
+  
+  .container {
+    gap: 5px;
+  }
+  
+  .main-content {
+    gap: 10px;
+    grid-template-rows: 40% 60%;
+  }
+  
+  .canvas-container {
+    padding: 5px;
+  }
+  
+  .controls {
+    padding: 10px;
+    gap: 10px;
+  }
+  
+  .control-group {
+    flex: 1 1 auto;
+    min-width: 150px;
+  }
+  
+  .select {
+    min-width: 120px;
+  }
+  
+  .editor-wrapper {
+    flex-direction: column;
+  }
+  
+  .commands-panel {
+    width: 100%;
+    height: 200px;
+    order: -1;
+  }
+  
+  .code-editor {
+    width: 100% !important;
+  }
+  
+  .editor-wrapper:has(.commands-panel:not(.hidden)) .code-editor {
+    width: 100% !important;
+  }
+  
+  .game-hud {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px;
+  }
+  
+  .hud-item {
+    flex: 1 1 auto;
+  }
+  
+  .title {
+    font-size: 1.5em;
+  }
+  
+  .subtitle {
+    font-size: 1em;
+  }
+  
+  .output-container {
+    max-height: 80px;
+  }
+  
+  .output {
+    padding: 10px;
+    min-height: 40px;
+    max-height: 60px;
+    font-size: 12px;
+  }
+  
+  .objectives-container {
+    max-height: 100px;
+  }
+  
+  .objectives {
+    padding: 10px;
+    max-height: 80px;
+    font-size: 12px;
+  }
+  
+  .objective-item {
+    padding: 5px;
+    margin-bottom: 5px;
+    font-size: 11px;
+  }
+  
+  .output-header,
+  .objectives-header {
+    padding: 8px;
+    font-size: 13px;
   }
 }

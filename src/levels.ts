@@ -4,6 +4,9 @@ import type { Quest, Entity } from './types';
 function generateRandomSouls(count: number): Entity[] {
   const souls: Entity[] = [];
   const minDistance = 80; // Minimum distance between souls
+  const centerX = 400; // Turtle starting position
+  const centerY = 300;
+  const minDistanceFromCenter = 120; // Minimum distance from turtle start
   
   for (let i = 0; i < count; i++) {
     let position: { x: number; y: number };
@@ -14,12 +17,18 @@ function generateRandomSouls(count: number): Entity[] {
         x: 100 + Math.random() * 600, // Random x between 100-700
         y: 100 + Math.random() * 400  // Random y between 100-500
       };
+      
       attempts++;
-    } while (attempts < 50 && souls.some(soul => {
-      const dx = soul.position.x - position.x;
-      const dy = soul.position.y - position.y;
-      return Math.sqrt(dx * dx + dy * dy) < minDistance;
-    }));
+    } while (attempts < 50 && (
+      // Too close to center (turtle start position)
+      Math.sqrt(Math.pow(position.x - centerX, 2) + Math.pow(position.y - centerY, 2)) < minDistanceFromCenter ||
+      // Too close to other souls
+      souls.some(soul => {
+        const dx = soul.position.x - position.x;
+        const dy = soul.position.y - position.y;
+        return Math.sqrt(dx * dx + dy * dy) < minDistance;
+      })
+    ));
     
     souls.push({
       id: `soul${i + 1}`,
