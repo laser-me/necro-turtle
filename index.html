@@ -8,36 +8,44 @@
 </head>
 <body>
   <div class="container">
-    <header class="header">
-      <h1 class="title">🦴 NECRO-TURTLE</h1>
-      <p class="subtitle">Resurrect the ancient art of turtle graphics with dark magic</p>
-    </header>
+    <div class="top-section collapsed" id="top-section">
+      <button class="section-toggle" id="section-toggle" aria-label="Toggle header and controls" title="Show/Hide Header & Controls">
+        <span class="toggle-icon">🦇</span>
+      </button>
+      
+      <div class="section-content" id="section-content">
+        <header class="header">
+          <h1 class="title">🦴 NECRO-TURTLE</h1>
+          <p class="subtitle">Resurrect the ancient art of turtle graphics with dark magic</p>
+        </header>
 
-    <div class="controls">
-      <div class="control-group">
-        <label for="mode-select">Mode:</label>
-        <select id="mode-select" class="select">
-          <option value="freedraw">Free Draw</option>
-          <option value="quest">Quest Mode</option>
-        </select>
+        <div class="controls">
+          <div class="control-group">
+            <label for="mode-select">Mode:</label>
+            <select id="mode-select" class="select">
+              <option value="freedraw">Free Draw</option>
+              <option value="quest">Quest Mode</option>
+            </select>
+          </div>
+
+          <div class="control-group" id="example-group">
+            <label for="example-select">Example Ritual:</label>
+            <select id="example-select" class="select">
+              <option value="">-- Select Example --</option>
+            </select>
+          </div>
+
+          <div class="control-group hidden" id="quest-group">
+            <label for="quest-select">Quest:</label>
+            <select id="quest-select" class="select">
+              <option value="">-- Select Quest --</option>
+            </select>
+          </div>
+
+          <button id="clear-btn" class="btn btn-secondary">Clear Grave</button>
+          <button id="reset-btn" class="btn btn-secondary">Reset Turtle</button>
+        </div>
       </div>
-
-      <div class="control-group" id="example-group">
-        <label for="example-select">Example Ritual:</label>
-        <select id="example-select" class="select">
-          <option value="">-- Select Example --</option>
-        </select>
-      </div>
-
-      <div class="control-group hidden" id="quest-group">
-        <label for="quest-select">Quest:</label>
-        <select id="quest-select" class="select">
-          <option value="">-- Select Quest --</option>
-        </select>
-      </div>
-
-      <button id="clear-btn" class="btn btn-secondary">Clear Grave</button>
-      <button id="reset-btn" class="btn btn-secondary">Reset Turtle</button>
     </div>
 
     <div class="game-hud hidden" id="game-hud">
@@ -67,12 +75,26 @@
       <div class="editor-container">
         <div class="editor-header">
           <h3>Command Grimoire</h3>
+          <button class="commands-toggle" id="commands-toggle" title="Show/Hide Commands">
+            📜
+          </button>
         </div>
-        <textarea id="code-editor" class="code-editor" placeholder="// Write your necromancy commands here...
+        
+        <div class="editor-wrapper">
+          <textarea id="code-editor" class="code-editor" placeholder="// Write your necromancy commands here...
 // Example:
 summon(100);
-turnRight(90);
+twist(90);
 summon(100);"></textarea>
+          
+          <div class="commands-panel hidden" id="commands-panel">
+            <div class="commands-header">Necromancy Commands</div>
+            <div class="commands-list" id="commands-list">
+              <!-- Commands will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+        
         <button id="execute-btn" class="btn btn-primary">🔮 Cast Spell</button>
 
         <div class="output-container">

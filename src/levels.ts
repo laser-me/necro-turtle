@@ -1,34 +1,67 @@
-import type { Quest } from './types';
+import type { Quest, Entity } from './types';
+
+// Generate random soul positions
+function generateRandomSouls(count: number): Entity[] {
+  const souls: Entity[] = [];
+  const minDistance = 80; // Minimum distance between souls
+  
+  for (let i = 0; i < count; i++) {
+    let position: { x: number; y: number };
+    let attempts = 0;
+    
+    do {
+      position = {
+        x: 100 + Math.random() * 600, // Random x between 100-700
+        y: 100 + Math.random() * 400  // Random y between 100-500
+      };
+      attempts++;
+    } while (attempts < 50 && souls.some(soul => {
+      const dx = soul.position.x - position.x;
+      const dy = soul.position.y - position.y;
+      return Math.sqrt(dx * dx + dy * dy) < minDistance;
+    }));
+    
+    souls.push({
+      id: `soul${i + 1}`,
+      type: 'soul',
+      position,
+      radius: 30,
+      active: true,
+      sprite: '👻'
+    });
+  }
+  
+  return souls;
+}
 
 export function loadQuests(): Quest[] {
+  const soulCount = 7; // Number of souls to collect
+  const souls = generateRandomSouls(soulCount);
+  
   return [
     {
       id: 'soul-collector',
-      name: 'Soul Collector',
-      description: 'Collect all 5 souls scattered across the realm',
+      name: `Soul Collector (${soulCount} souls)`,
+      description: `Write ONE command to collect all ${soulCount} randomly placed souls. Score: fewer commands = better!`,
       objectives: [
         {
           type: 'collect',
           target: 'soul',
-          count: 5,
+          count: soulCount,
           current: 0,
           completed: false,
-          description: 'Collect all souls'
+          description: `Collect all ${soulCount} souls with minimal commands`
         }
       ],
-      entities: [
-        { id: 'soul1', type: 'soul', position: { x: 200, y: 150 }, radius: 30, active: true, sprite: '👻' },
-        { id: 'soul2', type: 'soul', position: { x: 600, y: 150 }, radius: 30, active: true, sprite: '👻' },
-        { id: 'soul3', type: 'soul', position: { x: 200, y: 450 }, radius: 30, active: true, sprite: '👻' },
-        { id: 'soul4', type: 'soul', position: { x: 600, y: 450 }, radius: 30, active: true, sprite: '👻' },
-        { id: 'soul5', type: 'soul', position: { x: 400, y: 300 }, radius: 30, active: true, sprite: '👻' }
-      ],
+      entities: souls,
       startPosition: { x: 400, y: 300 },
-      successMessage: 'All souls have been collected! The spirits are at peace.',
+      successMessage: `All ${soulCount} souls collected! Check your command count for efficiency.`,
       hints: [
-        'Use haunt(x, y) to teleport to soul locations',
-        'Use collectSoul() when near a soul',
-        'Check coordinates: souls are at (200,150), (600,150), (200,450), (600,450), (400,300)'
+        'Write a loop or algorithm to visit all souls',
+        'Use haunt(x, y) to teleport to each soul',
+        'Call collectSoul() after each haunt',
+        'Try to do it in ONE command execution!',
+        'Bonus: Can you collect them in order (nearest first)?'
       ]
     },
     {

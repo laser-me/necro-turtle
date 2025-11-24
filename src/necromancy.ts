@@ -31,6 +31,38 @@ export class NecromancyAPI {
     this.gameManager.incrementCommands();
   };
 
+  // Primary necromantic rotation commands
+  spin = (angle: number): void => {
+    this.turtle.turnLeft(angle);
+    this.gameManager.incrementCommands();
+  };
+
+  twist = (angle: number): void => {
+    this.turtle.turnRight(angle);
+    this.gameManager.incrementCommands();
+  };
+
+  // Additional necromantic rotation aliases
+  rotateWiddershins = (angle: number): void => {
+    this.turtle.turnLeft(angle);
+    this.gameManager.incrementCommands();
+  };
+
+  rotateDeosil = (angle: number): void => {
+    this.turtle.turnRight(angle);
+    this.gameManager.incrementCommands();
+  };
+
+  turnToShadows = (angle: number): void => {
+    this.turtle.turnLeft(angle);
+    this.gameManager.incrementCommands();
+  };
+
+  turnToLight = (angle: number): void => {
+    this.turtle.turnRight(angle);
+    this.gameManager.incrementCommands();
+  };
+
   haunt = (x: number, y: number): void => {
     this.turtle.teleport(x, y);
     this.gameManager.incrementCommands();
@@ -114,26 +146,45 @@ export class NecromancyAPI {
     return this.turtle.getPosition();
   };
 
+  getSoulPositions = (): Array<{ x: number; y: number }> => {
+    const entities = this.gameManager.getEntities();
+    const souls = entities.filter(e => e.type === 'soul' && e.active);
+    const positions = souls.map(s => ({ x: Math.round(s.position.x), y: Math.round(s.position.y) }));
+    console.log('Soul positions:', positions);
+    return positions;
+  };
+
   // Get all commands for parser
   getCommands(): Record<string, any> {
     return {
+      // Movement
       summon: this.summon,
       banish: this.banish,
+      spin: this.spin,
+      twist: this.twist,
       turnLeft: this.turnLeft,
       turnRight: this.turnRight,
+      rotateWiddershins: this.rotateWiddershins,
+      rotateDeosil: this.rotateDeosil,
+      turnToShadows: this.turnToShadows,
+      turnToLight: this.turnToLight,
       haunt: this.haunt,
+      // Drawing
       raiseSpirit: this.raiseSpirit,
       bindSpirit: this.bindSpirit,
       conjureColor: this.conjureColor,
       setLineWidth: this.setLineWidth,
+      // Utility
       ritual: this.ritual,
       clearGrave: this.clearGrave,
       resurrect: this.resurrect,
+      // Game
       castSpell: this.castSpell,
       collectSoul: this.collectSoul,
       banishDemon: this.banishDemon,
       checkQuest: this.checkQuest,
-      getPosition: this.getPosition
+      getPosition: this.getPosition,
+      getSoulPositions: this.getSoulPositions
     };
   }
 }

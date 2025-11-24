@@ -14,7 +14,7 @@ This project brings back the beloved Logo programming language from the 1960s-80
 
 ## ✨ Features
 
-- **17+ Necromancy Commands** - Control the spectral turtle with dark magic
+- **24+ Necromancy Commands** - Control the spectral turtle with dark magic
 - **Two Game Modes** - Free Draw for creativity, Quest Mode for challenges
 - **Quest System** - Complete necromancy tasks and collect souls
 - **Interactive Entities** - Souls to collect, demons to banish, buildings to explore
@@ -31,8 +31,14 @@ This project brings back the beloved Logo programming language from the 1960s-80
 |---------|-----------|-------------|---------|
 | `summon(distance)` | distance: number | Move the turtle forward | `summon(100)` |
 | `banish(distance)` | distance: number | Move the turtle backward | `banish(50)` |
-| `turnLeft(angle)` | angle: degrees | Rotate counterclockwise | `turnLeft(90)` |
-| `turnRight(angle)` | angle: degrees | Rotate clockwise | `turnRight(45)` |
+| `spin(angle)` | angle: degrees | Spin counterclockwise | `spin(90)` |
+| `twist(angle)` | angle: degrees | Twist clockwise | `twist(45)` |
+| `turnLeft(angle)` | angle: degrees | Rotate counterclockwise (alias) | `turnLeft(90)` |
+| `turnRight(angle)` | angle: degrees | Rotate clockwise (alias) | `turnRight(45)` |
+| `rotateWiddershins(angle)` | angle: degrees | Rotate counterclockwise (occult) | `rotateWiddershins(90)` |
+| `rotateDeosil(angle)` | angle: degrees | Rotate clockwise (occult) | `rotateDeosil(45)` |
+| `turnToShadows(angle)` | angle: degrees | Turn toward darkness | `turnToShadows(90)` |
+| `turnToLight(angle)` | angle: degrees | Turn toward light | `turnToLight(45)` |
 | `haunt(x, y)` | x, y: coordinates | Teleport to position | `haunt(400, 300)` |
 
 ### Drawing Commands
@@ -58,6 +64,7 @@ This project brings back the beloved Logo programming language from the 1960s-80
 | `banishDemon()` | none | Banish demon at location | `banishDemon()` |
 | `checkQuest()` | none | Check quest status | `checkQuest()` |
 | `getPosition()` | none | Get turtle coordinates | `getPosition()` |
+| `getSoulPositions()` | none | Get array of soul positions | `getSoulPositions()` |
 
 ## 📜 Example Rituals
 
@@ -67,7 +74,7 @@ This project brings back the beloved Logo programming language from the 1960s-80
 ```javascript
 ritual(5, () => {
   summon(150);
-  turnRight(144);
+  twist(144);
 });
 ```
 
@@ -75,7 +82,7 @@ ritual(5, () => {
 ```javascript
 for(let i = 0; i < 100; i++) {
   summon(i * 2);
-  turnRight(45);
+  twist(45);
 }
 ```
 
@@ -83,7 +90,7 @@ for(let i = 0; i < 100; i++) {
 ```javascript
 summon(100);
 banish(50);
-turnLeft(90);
+spin(90);
 summon(50);
 banish(100);
 summon(50);
@@ -93,12 +100,16 @@ summon(50);
 
 **Soul Collector**
 ```javascript
-// Navigate to each soul and collect it
-haunt(150, 200);
-collectSoul();
-haunt(400, 300);
-collectSoul();
-// ... collect all souls to win!
+// Get soul positions first
+const souls = getSoulPositions();
+
+// Visit each soul and collect it
+souls.forEach(soul => {
+  haunt(soul.x, soul.y);
+  collectSoul();
+});
+
+// Challenge: Can you optimize the path?
 ```
 
 **Demon Hunter**

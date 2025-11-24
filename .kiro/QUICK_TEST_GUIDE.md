@@ -31,22 +31,21 @@ Click "🔮 Cast Spell"
 ### Test 4: Quest Mode - Soul Collector (2 minutes)
 1. Change mode to "Quest Mode"
 2. Select "Soul Collector" quest
-3. ✅ You should see 5 ghost emojis (👻) on canvas
+3. ✅ You should see 7 ghost emojis (👻) at random positions
 4. Paste this code:
 ```javascript
-haunt(200, 150);
-collectSoul();
-haunt(600, 150);
-collectSoul();
-haunt(200, 450);
-collectSoul();
-haunt(600, 450);
-collectSoul();
-haunt(400, 300);
-collectSoul();
+// Get all soul positions
+const souls = getSoulPositions();
+
+// Visit and collect each soul
+souls.forEach(soul => {
+  haunt(soul.x, soul.y);
+  collectSoul();
+});
 ```
 5. Click "🔮 Cast Spell"
-6. ✅ Ghosts disappear, score increases, quest completes!
+6. ✅ All ghosts disappear, score increases with efficiency bonus!
+7. Check console for your command count and efficiency score
 
 ### Test 5: Quest Mode - Demon Hunter (2 minutes)
 1. Select "Demon Hunter" quest

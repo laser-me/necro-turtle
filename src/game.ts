@@ -99,8 +99,18 @@ export class GameManager {
     const allCompleted = this.state.currentQuest.objectives.every(obj => obj.completed);
     if (allCompleted) {
       this.state.questsCompleted++;
-      this.state.score += 100;
+      
+      // Calculate efficiency bonus
+      const soulCount = this.state.currentQuest.entities.filter(e => e.type === 'soul').length;
+      const optimalCommands = soulCount * 2; // haunt + collectSoul per soul
+      const efficiency = Math.max(0, 100 - (this.state.commandsUsed - optimalCommands) * 5);
+      
+      this.state.score += 100 + efficiency;
+      
       console.log(`🎉 ${this.state.currentQuest.successMessage}`);
+      console.log(`📊 Commands used: ${this.state.commandsUsed}`);
+      console.log(`⭐ Efficiency bonus: +${efficiency} points`);
+      console.log(`💯 Total score: ${this.state.score}`);
     }
   }
 

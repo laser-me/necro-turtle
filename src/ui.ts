@@ -14,9 +14,24 @@ export class UIManager {
     this.parser = parser;
 
     this.setupEventListeners();
+    this.populateCommandsPanel();
   }
 
   private setupEventListeners(): void {
+    // Top section toggle (header + controls)
+    const sectionToggle = document.getElementById('section-toggle');
+    const topSection = document.getElementById('top-section');
+    sectionToggle?.addEventListener('click', () => {
+      topSection?.classList.toggle('collapsed');
+    });
+
+    // Commands panel toggle
+    const commandsToggle = document.getElementById('commands-toggle');
+    const commandsPanel = document.getElementById('commands-panel');
+    commandsToggle?.addEventListener('click', () => {
+      commandsPanel?.classList.toggle('hidden');
+    });
+
     // Mode selector
     const modeSelect = document.getElementById('mode-select') as HTMLSelectElement;
     modeSelect?.addEventListener('change', () => this.handleModeChange(modeSelect.value as 'freedraw' | 'quest'));
@@ -203,5 +218,82 @@ export class UIManager {
     if (output) {
       output.innerHTML = `<div class="output-${type}">${message}</div>`;
     }
+  }
+
+  private populateCommandsPanel(): void {
+    const commandsList = document.getElementById('commands-list');
+    if (!commandsList) return;
+
+    const commands = [
+      { category: 'Movement', items: [
+        { name: 'summon(distance)', desc: 'Move forward', example: 'summon(100);' },
+        { name: 'banish(distance)', desc: 'Move backward', example: 'banish(50);' },
+        { name: 'spin(angle)', desc: 'Spin left', example: 'spin(90);' },
+        { name: 'twist(angle)', desc: 'Twist right', example: 'twist(45);' },
+        { name: 'haunt(x, y)', desc: 'Teleport', example: 'haunt(400, 300);' }
+      ]},
+      { category: 'Drawing', items: [
+        { name: 'raiseSpirit()', desc: 'Pen up', example: 'raiseSpirit();' },
+        { name: 'bindSpirit()', desc: 'Pen down', example: 'bindSpirit();' },
+        { name: 'conjureColor(color)', desc: 'Set color', example: "conjureColor('#bb88ff');" },
+        { name: 'setLineWidth(width)', desc: 'Set width', example: 'setLineWidth(5);' }
+      ]},
+      { category: 'Utility', items: [
+        { name: 'ritual(count, fn)', desc: 'Loop', example: 'ritual(4, () => { summon(50); twist(90); });' },
+        { name: 'clearGrave()', desc: 'Clear canvas', example: 'clearGrave();' },
+        { name: 'resurrect()', desc: 'Reset turtle', example: 'resurrect();' }
+      ]},
+      { category: 'Game', items: [
+        { name: 'collectSoul()', desc: 'Collect soul', example: 'collectSoul();' },
+        { name: 'banishDemon()', desc: 'Banish demon', example: 'banishDemon();' },
+        { name: 'getSoulPositions()', desc: 'Get souls', example: 'const souls = getSoulPositions();' },
+        { name: 'getPosition()', desc: 'Get position', example: 'const pos = getPosition();' }
+      ]}
+    ];
+
+    commands.forEach(category => {
+      const categoryDiv = document.createElement('div');
+      categoryDiv.className = 'command-category';
+      categoryDiv.innerHTML = `<div style="color: #bb88ff; font-weight: bold; margin: 10px 0 5px 0;">${category.category}</div>`;
+      
+      category.items.forEach(cmd => {
+        const cmdDiv = document.createElement('div');
+        cmdDiv.className = 'command-item';
+        cmdDiv.innerHTML = `
+          <div class="command-name">${cmd.name}</div>
+          <div class="command-desc">${cmd.desc}</div>
+          <div class="command-tooltip">
+            <div style="color: #bb88ff; font-weight: bold;">Example:</div>
+            <div class="command-tooltip-example">${cmd.example}</div>
+          </div>
+        `;
+        
+        cmdDiv.addEventListener('click', () => {
+          const editor = document.getElementById('code-editor') as HTMLTextAreaElement;
+          if (editor) {
+            const cursorPos = editor.selectionStart;
+            const textBefore = editor.value.substring(0, cursorPos);
+            const textAfter = editor.value.substring(cursorPos);
+            editor.value = textBefore + cmd.example + '\n' + textAfter;
+            editor.focus();
+            editor.selectionStart = editor.selectionEnd = cursorPos + cmd.example.length + 1;
+          }
+        });
+
+        // Position tooltip on hover
+        cmdDiv.addEventListener('mouseenter', (e) => {
+          const tooltip = cmdDiv.querySelector('.command-tooltip') as HTMLElement;
+          if (tooltip) {
+            const rect = cmdDiv.getBoundingClientRect();
+            tooltip.style.left = `${rect.right + 10}px`;
+            tooltip.style.top = `${rect.top}px`;
+          }
+        });
+        
+        categoryDiv.appendChild(cmdDiv);
+      });
+      
+      commandsList.appendChild(categoryDiv);
+    });
   }
 }

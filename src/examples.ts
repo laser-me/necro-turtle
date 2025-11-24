@@ -8,7 +8,7 @@ export function loadExamples(): Ritual[] {
       code: `// Draw a pentagram (5-pointed star)
 ritual(5, () => {
   summon(150);
-  turnRight(144);
+  twist(144);
 });`,
       category: 'freedraw'
     },
@@ -18,7 +18,7 @@ ritual(5, () => {
       code: `// Draw a mystical spiral
 for (let i = 0; i < 100; i++) {
   summon(i * 2);
-  turnRight(45);
+  twist(45);
 }`,
       category: 'freedraw'
     },
@@ -28,7 +28,7 @@ for (let i = 0; i < 100; i++) {
       code: `// Draw a cross
 summon(100);
 banish(50);
-turnLeft(90);
+spin(90);
 summon(50);
 banish(100);
 summon(50);`,
@@ -41,13 +41,13 @@ summon(50);`,
 // Base
 ritual(4, () => {
   summon(100);
-  turnRight(90);
+  twist(90);
 });
 
 // Roof
-turnRight(45);
+twist(45);
 summon(70);
-turnRight(90);
+twist(90);
 summon(70);`,
       category: 'freedraw'
     },
@@ -58,11 +58,11 @@ summon(70);`,
 conjureColor('#bb88ff');
 ritual(8, () => {
   summon(80);
-  turnRight(135);
+  twist(135);
   summon(40);
-  turnLeft(90);
+  spin(90);
   summon(40);
-  turnRight(135);
+  twist(135);
 });`,
       category: 'freedraw'
     }

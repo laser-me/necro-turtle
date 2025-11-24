@@ -70,23 +70,60 @@ export class Turtle {
 
     this.ctx.save();
     this.ctx.translate(x, y);
-    this.ctx.rotate((angle * Math.PI) / 180);
+    // Rotate: angle 0 = up, so subtract 90 degrees to align with upward direction
+    this.ctx.rotate(((angle - 90) * Math.PI) / 180);
 
-    // Draw simple triangle for turtle
-    this.ctx.fillStyle = '#00ff88';
+    // Draw necromancer turtle (skull with glowing eyes)
+    
+    // Outer glow
+    const gradient = this.ctx.createRadialGradient(0, 0, 0, 0, 0, 20);
+    gradient.addColorStop(0, 'rgba(0, 255, 136, 0.6)');
+    gradient.addColorStop(1, 'rgba(0, 255, 136, 0)');
+    this.ctx.fillStyle = gradient;
     this.ctx.beginPath();
-    this.ctx.moveTo(10, 0);
-    this.ctx.lineTo(-5, -5);
-    this.ctx.lineTo(-5, 5);
+    this.ctx.arc(0, 0, 20, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    // Skull body (rounded triangle pointing forward)
+    this.ctx.fillStyle = '#00ff88';
+    this.ctx.strokeStyle = '#00ff88';
+    this.ctx.lineWidth = 2;
+    this.ctx.beginPath();
+    this.ctx.moveTo(15, 0);  // Front point
+    this.ctx.lineTo(-8, -8); // Back left
+    this.ctx.lineTo(-8, 8);  // Back right
     this.ctx.closePath();
     this.ctx.fill();
+    this.ctx.stroke();
+
+    // Draw zombie emoji/icon on top (rotate 90 degrees to face forward)
+    this.ctx.save();
+    this.ctx.rotate((90 * Math.PI) / 180);
+    this.ctx.font = 'bold 24px Arial';
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillStyle = '#ffffff';
+    this.ctx.fillText('🧟', 0, 0);
+    this.ctx.restore();
+
+    // Glowing eyes
+    this.ctx.fillStyle = '#00ff88';
+    this.ctx.shadowColor = '#00ff88';
+    this.ctx.shadowBlur = 5;
+    this.ctx.beginPath();
+    this.ctx.arc(-2, -2, 1.5, 0, Math.PI * 2);
+    this.ctx.arc(2, -2, 1.5, 0, Math.PI * 2);
+    this.ctx.fill();
+    this.ctx.shadowBlur = 0;
 
     this.ctx.restore();
   }
 
   // Movement commands
   forward(distance: number): void {
-    const rad = (this.state.angle * Math.PI) / 180;
+    // Angle 0 = up (north), so we need to adjust the calculation
+    // Convert angle to radians and adjust so 0 degrees = up
+    const rad = ((this.state.angle - 90) * Math.PI) / 180;
     const newX = this.state.position.x + distance * Math.cos(rad);
     const newY = this.state.position.y + distance * Math.sin(rad);
 

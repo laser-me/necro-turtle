@@ -26,7 +26,13 @@ Replace traditional Logo commands with dark magic equivalents:
 ### Movement Commands
 - `summon(distance)` - move forward (fd)
 - `banish(distance)` - move backward (bk)
-- `turnLeft(angle)` / `turnRight(angle)` - rotate (lt/rt)
+- `spin(angle)` - spin counterclockwise (primary left rotation)
+- `twist(angle)` - twist clockwise (primary right rotation)
+- `turnLeft(angle)` / `turnRight(angle)` - rotate (aliases)
+- `rotateWiddershins(angle)` - rotate counterclockwise (occult term)
+- `rotateDeosil(angle)` - rotate clockwise (occult term)
+- `turnToShadows(angle)` - turn toward darkness (thematic left)
+- `turnToLight(angle)` - turn toward light (thematic right)
 - `haunt(x, y)` - teleport to position
 
 ### Drawing Commands
