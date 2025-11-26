@@ -81,11 +81,15 @@
         </div>
         
         <div class="editor-wrapper">
-          <textarea id="code-editor" class="code-editor" placeholder="// Write your necromancy commands here...
+          <div class="editor-container-wrapper">
+            <textarea id="code-editor" class="code-editor" placeholder="// Write your necromancy commands here...
 // Example:
 summon(100);
 twist(90);
 summon(100);"></textarea>
+            <div id="inline-suggestion" class="inline-suggestion"></div>
+            <div id="hint-text" class="hint-text"></div>
+          </div>
           
           <div class="commands-panel hidden" id="commands-panel">
             <div class="commands-header">Necromancy Commands</div>

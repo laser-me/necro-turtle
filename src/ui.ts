@@ -8,6 +8,8 @@ export class UIManager {
   private gameManager: GameManager;
   private parser: Parser;
 
+  private currentSuggestion: { completion: string; fullCommand: string; hasParams: boolean } | null = null;
+
   constructor(turtle: Turtle, gameManager: GameManager, parser: Parser) {
     this.turtle = turtle;
     this.gameManager = gameManager;
@@ -15,6 +17,7 @@ export class UIManager {
 
     this.setupEventListeners();
     this.populateCommandsPanel();
+    this.setupAutocomplete();
   }
 
   private setupEventListeners(): void {
@@ -51,6 +54,10 @@ export class UIManager {
     // Clear editor button
     const clearEditorBtn = document.getElementById('clear-editor-btn');
     clearEditorBtn?.addEventListener('click', () => this.clearEditor());
+
+    // Keyboard shortcuts
+    const editor = document.getElementById('code-editor') as HTMLTextAreaElement;
+    editor?.addEventListener('keydown', (e) => this.handleEditorKeydown(e));
 
     // Example selector
     const exampleSelect = document.getElementById('example-select') as HTMLSelectElement;
@@ -308,5 +315,123 @@ export class UIManager {
       
       commandsList.appendChild(categoryDiv);
     });
+  }
+
+  private setupAutocomplete(): void {
+    const editor = document.getElementById('code-editor') as HTMLTextAreaElement;
+    if (!editor) return;
+
+    // Listen for input
+    editor.addEventListener('input', () => this.handleInlineAutocomplete());
+  }
+
+  private handleInlineAutocomplete(): void {
+    const editor = document.getElementById('code-editor') as HTMLTextAreaElement;
+    if (!editor) return;
+
+    const cursorPos = editor.selectionStart;
+    const textBeforeCursor = editor.value.substring(0, cursorPos);
+    const currentLine = textBeforeCursor.split('\n').pop() || '';
+    const words = currentLine.split(/[\s\(\)\{\}\[\];,]/);
+    const currentWord = words[words.length - 1];
+
+    const inlineSuggestion = document.getElementById('inline-suggestion');
+    const hintText = document.getElementById('hint-text');
+
+    if (!inlineSuggestion || !hintText) return;
+
+    if (currentWord.length < 2) {
+      inlineSuggestion.textContent = '';
+      hintText.textContent = '';
+      this.currentSuggestion = null;
+      return;
+    }
+
+    // Get all commands with descriptions
+    const allCommands = [
+      { name: 'summon', params: '(distance)', paramsOnly: '()', desc: 'Move forward' },
+      { name: 'banish', params: '(distance)', paramsOnly: '()', desc: 'Move backward' },
+      { name: 'spin', params: '(angle)', paramsOnly: '()', desc: 'Spin left' },
+      { name: 'twist', params: '(angle)', paramsOnly: '()', desc: 'Twist right' },
+      { name: 'haunt', params: '(x, y)', paramsOnly: '()', desc: 'Teleport to position' },
+      { name: 'raiseSpirit', params: '()', paramsOnly: '()', desc: 'Pen up' },
+      { name: 'bindSpirit', params: '()', paramsOnly: '()', desc: 'Pen down' },
+      { name: 'conjureColor', params: '(color)', paramsOnly: '()', desc: 'Set trail color' },
+      { name: 'setLineWidth', params: '(width)', paramsOnly: '()', desc: 'Set trail width' },
+      { name: 'ritual', params: '(count, fn)', paramsOnly: '()', desc: 'Repeat commands' },
+      { name: 'clearGrave', params: '()', paramsOnly: '()', desc: 'Clear canvas' },
+      { name: 'resurrect', params: '()', paramsOnly: '()', desc: 'Reset turtle' },
+      { name: 'collectSoul', params: '()', paramsOnly: '()', desc: 'Collect soul at position' },
+      { name: 'banishDemon', params: '()', paramsOnly: '()', desc: 'Banish demon at position' },
+      { name: 'getSoulPositions', params: '()', paramsOnly: '()', desc: 'Get array of soul positions' },
+      { name: 'getPosition', params: '()', paramsOnly: '()', desc: 'Get turtle coordinates' }
+    ];
+
+    // Find best match
+    const match = allCommands.find(cmd => 
+      cmd.name.toLowerCase().startsWith(currentWord.toLowerCase()) &&
+      cmd.name.toLowerCase() !== currentWord.toLowerCase()
+    );
+
+    if (!match) {
+      inlineSuggestion.textContent = '';
+      hintText.textContent = '';
+      this.currentSuggestion = null;
+      return;
+    }
+
+    // Show inline suggestion (with parameter names for display)
+    const displayCompletion = match.name.substring(currentWord.length) + match.params;
+    inlineSuggestion.textContent = textBeforeCursor + displayCompletion;
+    hintText.textContent = `// ${match.desc}`;
+    
+    // Store actual completion (just brackets, no parameter names)
+    const actualCompletion = match.name.substring(currentWord.length) + match.paramsOnly;
+    this.currentSuggestion = { 
+      completion: actualCompletion, 
+      fullCommand: match.name + match.paramsOnly,
+      hasParams: match.paramsOnly === '()'
+    };
+  }
+
+  private handleEditorKeydown(e: KeyboardEvent): void {
+    // Ctrl+Enter to execute
+    if (e.ctrlKey && e.key === 'Enter') {
+      e.preventDefault();
+      this.executeCode();
+      return;
+    }
+
+    // Tab or Enter to accept inline suggestion
+    if ((e.key === 'Tab' || e.key === 'Enter') && this.currentSuggestion) {
+      const editor = document.getElementById('code-editor') as HTMLTextAreaElement;
+      if (!editor) return;
+
+      // Only accept on Tab, or Enter if at end of line
+      const cursorPos = editor.selectionStart;
+      const textAfterCursor = editor.value.substring(cursorPos);
+      const isEndOfLine = !textAfterCursor || textAfterCursor.startsWith('\n');
+
+      if (e.key === 'Tab' || (e.key === 'Enter' && isEndOfLine)) {
+        e.preventDefault();
+        
+        const textBeforeCursor = editor.value.substring(0, cursorPos);
+        editor.value = textBeforeCursor + this.currentSuggestion.completion + textAfterCursor;
+        
+        // Position cursor inside brackets if command has parameters
+        const newCursorPos = this.currentSuggestion.hasParams 
+          ? cursorPos + this.currentSuggestion.completion.length - 1  // Inside ()
+          : cursorPos + this.currentSuggestion.completion.length;     // After ()
+        
+        editor.selectionStart = editor.selectionEnd = newCursorPos;
+        
+        // Clear suggestion
+        const inlineSuggestion = document.getElementById('inline-suggestion');
+        const hintText = document.getElementById('hint-text');
+        if (inlineSuggestion) inlineSuggestion.textContent = '';
+        if (hintText) hintText.textContent = '';
+        this.currentSuggestion = null;
+      }
+    }
   }
 }

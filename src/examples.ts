@@ -36,19 +36,69 @@ summon(50);`,
     },
     {
       name: 'Haunted House',
-      description: 'Simple house outline',
-      code: `// Draw a simple house
-// Base
+      description: 'Spooky haunted manor',
+      code: `// Draw a spooky haunted house
+conjureColor('#bb88ff');
+
+// Main house base
 ritual(4, () => {
-  summon(100);
+  summon(120);
   twist(90);
 });
 
 // Roof
-twist(45);
-summon(70);
+spin(45);
+summon(85);
 twist(90);
-summon(70);`,
+summon(85);
+
+// Tower on left
+raiseSpirit();
+haunt(340, 240);
+bindSpirit();
+summon(60);
+twist(90);
+summon(30);
+twist(90);
+summon(60);
+
+// Tower roof
+spin(60);
+summon(35);
+twist(120);
+summon(35);
+twist(120);
+summon(35);
+
+// Door
+raiseSpirit();
+haunt(385, 300);
+bindSpirit();
+conjureColor('#00ff88');
+summon(40);
+twist(90);
+summon(20);
+twist(90);
+summon(40);
+twist(90);
+summon(20);
+
+// Windows
+raiseSpirit();
+haunt(360, 260);
+bindSpirit();
+ritual(4, () => {
+  summon(15);
+  twist(90);
+});
+
+raiseSpirit();
+haunt(420, 260);
+bindSpirit();
+ritual(4, () => {
+  summon(15);
+  twist(90);
+});`,
       category: 'freedraw'
     },
     {

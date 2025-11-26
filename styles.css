@@ -299,10 +299,18 @@ body {
   min-height: 0;
 }
 
+.editor-container-wrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  height: 100%;
+}
+
 .code-editor {
   flex: 1;
-  height: 100%;
   width: 100%;
+  min-height: 300px;
   background: #0a0a0a;
   color: #00ff88;
   border: 2px solid #00ff88;
@@ -505,6 +513,34 @@ body {
 
 .hidden {
   display: none !important;
+}
+
+/* Inline autocomplete */
+.inline-suggestion {
+  position: absolute;
+  top: 17px;
+  left: 17px;
+  color: rgba(187, 136, 255, 0.4);
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  pointer-events: none;
+  white-space: pre;
+  z-index: 1;
+}
+
+.hint-text {
+  position: absolute;
+  top: 17px;
+  right: 17px;
+  color: rgba(187, 136, 255, 0.5);
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 1;
+  font-style: italic;
 }
 
 /* Scrollbar styling */
