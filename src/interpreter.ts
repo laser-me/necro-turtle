@@ -244,12 +244,14 @@ export class Interpreter {
       }
 
       await this.executeInstruction(instruction);
+      
+      // Execute animations after each instruction so position is updated
+      await this.api.executeAnimations();
+      
       console.log('[Interpreter] Instruction', i, 'completed');
     }
 
-    console.log('[Interpreter] All instructions queued, executing animations...');
-    await this.api.executeAnimations();
-    console.log('[Interpreter] Animations completed');
+    console.log('[Interpreter] All instructions executed');
   }
 
   private async executeInstruction(instruction: Instruction): Promise<void> {
