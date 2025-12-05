@@ -1,19 +1,22 @@
 import type { Turtle } from './turtle';
 import type { GameManager } from './game';
 import type { Parser } from './parser';
+import type { NecromancyAPI } from './necromancy';
 import type { Ritual, Quest } from './types';
 
 export class UIManager {
   private turtle: Turtle;
   private gameManager: GameManager;
   private parser: Parser;
+  private necromancyAPI: NecromancyAPI;
 
   private currentSuggestion: { completion: string; fullCommand: string; hasParams: boolean } | null = null;
 
-  constructor(turtle: Turtle, gameManager: GameManager, parser: Parser) {
+  constructor(turtle: Turtle, gameManager: GameManager, parser: Parser, necromancyAPI: NecromancyAPI) {
     this.turtle = turtle;
     this.gameManager = gameManager;
     this.parser = parser;
+    this.necromancyAPI = necromancyAPI;
 
     this.setupEventListeners();
     this.populateCommandsPanel();
@@ -59,6 +62,15 @@ export class UIManager {
     const editor = document.getElementById('code-editor') as HTMLTextAreaElement;
     editor?.addEventListener('keydown', (e) => this.handleEditorKeydown(e));
 
+    // Speed control
+    const speedSlider = document.getElementById('speed-slider') as HTMLInputElement;
+    const speedValue = document.getElementById('speed-value');
+    speedSlider?.addEventListener('input', () => {
+      const speed = parseInt(speedSlider.value);
+      if (speedValue) speedValue.textContent = speed.toString();
+      this.necromancyAPI.setAnimationSpeed(speed);
+    });
+
     // Example selector
     const exampleSelect = document.getElementById('example-select') as HTMLSelectElement;
     exampleSelect?.addEventListener('change', () => this.loadExample(exampleSelect.value));
@@ -69,6 +81,9 @@ export class UIManager {
   }
 
   private handleModeChange(mode: 'freedraw' | 'quest'): void {
+    // Perform full cleanup when switching modes
+    this.performFullCleanup();
+    
     this.gameManager.setMode(mode);
 
     const exampleGroup = document.getElementById('example-group');
@@ -89,36 +104,135 @@ export class UIManager {
     }
 
     this.updateUI();
+    this.logOutput(`Switched to ${mode === 'quest' ? 'Quest' : 'Free Draw'} mode. Canvas cleared.`, 'info');
   }
 
-  private executeCode(): void {
+  private async executeCode(): Promise<void> {
     const editor = document.getElementById('code-editor') as HTMLTextAreaElement;
     const output = document.getElementById('output');
+    const executeBtn = document.getElementById('execute-btn') as HTMLButtonElement;
     
-    if (!editor || !output) return;
+    if (!editor || !output || !executeBtn) return;
 
     const code = editor.value;
-    const result = this.parser.execute(code);
+    
+    // Create highlight overlay
+    let highlightOverlay = document.getElementById('code-highlight-overlay');
+    if (!highlightOverlay) {
+      highlightOverlay = document.createElement('div');
+      highlightOverlay.id = 'code-highlight-overlay';
+      highlightOverlay.className = 'code-highlight-overlay';
+      editor.parentElement?.appendChild(highlightOverlay);
+    }
+    
+    // Set up line tracking via interpreter
+    this.parser.setLineCallback((lineNumber: number) => {
+      const lineHeight = 21; // Approximate line height
+      highlightOverlay!.style.top = `${17 + lineNumber * lineHeight}px`;
+      highlightOverlay!.style.height = `${lineHeight}px`;
+      highlightOverlay!.style.display = 'block';
+    });
+    
+    // Disable editor and button during execution
+    editor.classList.add('executing');
+    executeBtn.disabled = true;
+    executeBtn.textContent = '⏳ Casting...';
+
+    const result = await this.parser.execute(code);
+
+    // Hide highlight
+    if (highlightOverlay) {
+      highlightOverlay.style.display = 'none';
+    }
 
     output.innerHTML = `<div class="output-${result.success ? 'success' : 'error'}">${result.message}</div>`;
     
-    // Update entities rendering after execution
-    const entities = this.gameManager.getEntities();
-    this.turtle.setEntities(entities);
+    // Update entities rendering after execution (only in quest mode)
+    const state = this.gameManager.getState();
+    if (state.mode === 'quest') {
+      const entities = this.gameManager.getEntities();
+      this.turtle.setEntities(entities);
+      
+      // Check if quest is completed and show confetti
+      if (state.currentQuest && state.currentQuest.objectives.every(obj => obj.completed)) {
+        this.showConfetti();
+        output.innerHTML = `<div class="output-success">🎉 ${state.currentQuest.successMessage}</div>`;
+      }
+    }
+    
+    // Re-enable editor and button
+    editor.classList.remove('executing');
+    executeBtn.disabled = false;
+    executeBtn.textContent = '🔮 Cast Spell';
     
     this.updateUI();
   }
 
   private clearCanvas(): void {
-    this.turtle.clear();
+    this.performFullCleanup();
     this.logOutput('The grave has been cleared...', 'info');
   }
 
-  private resetTurtle(): void {
-    this.turtle.reset();
+  /**
+   * Performs a complete cleanup of canvas, turtle, entities, and editor
+   */
+  private performFullCleanup(): void {
+    // Full turtle cleanup (trail, entities, animations, state)
+    this.turtle.fullCleanup();
+    
+    // Reset game state
     this.gameManager.reset();
+    
+    // Clear the code editor
+    const editor = document.getElementById('code-editor') as HTMLTextAreaElement;
+    if (editor) {
+      editor.value = '';
+    }
+    
+    // Clear output
+    const output = document.getElementById('output');
+    if (output) {
+      output.innerHTML = '';
+    }
+    
+    // Clear any highlight overlays
+    const highlightOverlay = document.getElementById('code-highlight-overlay');
+    if (highlightOverlay) {
+      highlightOverlay.style.display = 'none';
+    }
+    
+    // Update UI to reflect clean state
     this.updateUI();
-    this.logOutput('The turtle has been resurrected at the center.', 'info');
+  }
+
+  private resetTurtle(): void {
+    const state = this.gameManager.getState();
+    
+    if (state.mode === 'quest' && state.currentQuest) {
+      // In quest mode: reset to quest start state
+      this.gameManager.reset();
+      this.turtle.reset();
+      
+      // Restore quest entities
+      const entities = this.gameManager.getEntities();
+      this.turtle.setEntities(entities);
+      
+      // Position turtle at quest start position and angle (immediately, no animation)
+      this.turtle.setPositionAndAngle(
+        state.currentQuest.startPosition.x, 
+        state.currentQuest.startPosition.y, 
+        state.currentQuest.startAngle
+      );
+      
+      // Don't clear editor - keep the code so user can retry
+      
+      this.updateUI();
+      this.logOutput('Quest reset! Turtle resurrected and all entities restored.', 'info');
+    } else {
+      // In freedraw mode: just reset turtle
+      this.turtle.reset();
+      this.logOutput('Turtle resurrected at center.', 'info');
+    }
   }
 
   private clearEditor(): void {
@@ -183,10 +297,24 @@ export class UIManager {
       const questId = questSelect.value;
       const quest = quests.find(q => q.id === questId);
       if (quest) {
+        // Clean up before loading new quest
+        this.turtle.fullCleanup();
+        
+        // Load the quest
         this.gameManager.loadQuest(quest);
-        this.turtle.reset();
         this.turtle.setEntities(quest.entities);
+        
+        // Position turtle at quest start position and angle (immediately, no animation)
+        this.turtle.setPositionAndAngle(quest.startPosition.x, quest.startPosition.y, quest.startAngle);
+        
+        // Clear editor for new quest
+        const editor = document.getElementById('code-editor') as HTMLTextAreaElement;
+        if (editor) {
+          editor.value = '';
+        }
+        
         this.updateUI();
+        this.logOutput(`Quest loaded: ${quest.name}`, 'info');
       }
     });
   }
@@ -433,5 +561,65 @@ export class UIManager {
         this.currentSuggestion = null;
       }
     }
+  }
+
+  showConfetti(): void {
+    const canvas = this.turtle['canvas'] as HTMLCanvasElement;
+    const ctx = this.turtle['ctx'] as CanvasRenderingContext2D;
+    
+    const particles: Array<{
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      color: string;
+      size: number;
+      rotation: number;
+      rotationSpeed: number;
+    }> = [];
+    
+    // Create confetti particles
+    const colors = ['#bb88ff', '#00ff88', '#ff6b6b', '#ffd93d', '#6bcf7f'];
+    for (let i = 0; i < 100; i++) {
+      particles.push({
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        vx: (Math.random() - 0.5) * 10,
+        vy: (Math.random() - 0.5) * 10 - 5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: Math.random() * 8 + 4,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.3
+      });
+    }
+    
+    let frame = 0;
+    const maxFrames = 120;
+    
+    const animate = () => {
+      if (frame >= maxFrames) return;
+      
+      // Don't clear canvas, draw over existing content
+      particles.forEach(p => {
+        // Update position
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.2; // gravity
+        p.rotation += p.rotationSpeed;
+        
+        // Draw confetti piece
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        ctx.restore();
+      });
+      
+      frame++;
+      requestAnimationFrame(animate);
+    };
+    
+    animate();
   }
 }

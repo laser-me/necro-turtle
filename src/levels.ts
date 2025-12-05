@@ -1,5 +1,104 @@
 import type { Quest, Entity } from './types';
 
+// Create a graveyard maze with walls and gravestones
+function createGraveyardMaze(): Entity[] {
+  const entities: Entity[] = [];
+  const gridSize = 50; // Size of each grid cell
+  const startX = 100;
+  const startY = 100;
+  const cols = 12;
+  const rows = 8;
+  
+  // Add walls around the perimeter
+  // Top and bottom walls
+  for (let col = 0; col <= cols; col++) {
+    const x = startX + col * gridSize;
+    // Top wall
+    entities.push({
+      id: `wall-top-${col}`,
+      type: 'obstacle',
+      position: { x, y: startY },
+      radius: 20,
+      active: true,
+      sprite: '🧱'
+    });
+    // Bottom wall
+    entities.push({
+      id: `wall-bottom-${col}`,
+      type: 'obstacle',
+      position: { x, y: startY + rows * gridSize },
+      radius: 20,
+      active: true,
+      sprite: '🧱'
+    });
+  }
+  
+  // Left and right walls (excluding corners already added)
+  for (let row = 1; row < rows; row++) {
+    const y = startY + row * gridSize;
+    // Left wall (with entrance at row 1)
+    if (row !== 1) {
+      entities.push({
+        id: `wall-left-${row}`,
+        type: 'obstacle',
+        position: { x: startX, y },
+        radius: 20,
+        active: true,
+        sprite: '🧱'
+      });
+    }
+    // Right wall
+    entities.push({
+      id: `wall-right-${row}`,
+      type: 'obstacle',
+      position: { x: startX + cols * gridSize, y },
+      radius: 20,
+      active: true,
+      sprite: '🧱'
+    });
+  }
+  
+  // Add gravestones in a maze pattern (avoiding entrance and center)
+  const gravestonePositions = [
+    // Row 2
+    { col: 2, row: 2 }, { col: 4, row: 2 }, { col: 6, row: 2 }, { col: 8, row: 2 }, { col: 10, row: 2 },
+    // Row 3
+    { col: 2, row: 3 }, { col: 8, row: 3 }, { col: 10, row: 3 },
+    // Row 4 (center row - leave space for coffin)
+    { col: 2, row: 4 }, { col: 4, row: 4 }, { col: 8, row: 4 }, { col: 10, row: 4 },
+    // Row 5
+    { col: 2, row: 5 }, { col: 4, row: 5 }, { col: 10, row: 5 },
+    // Row 6
+    { col: 2, row: 6 }, { col: 4, row: 6 }, { col: 6, row: 6 }, { col: 8, row: 6 }, { col: 10, row: 6 }
+  ];
+  
+  gravestonePositions.forEach((pos, index) => {
+    entities.push({
+      id: `gravestone-${index}`,
+      type: 'obstacle',
+      position: {
+        x: startX + pos.col * gridSize,
+        y: startY + pos.row * gridSize
+      },
+      radius: 18,
+      active: true,
+      sprite: '🪦'
+    });
+  });
+  
+  // Add the ancient coffin at the center
+  entities.push({
+    id: 'ancient-coffin',
+    type: 'building',
+    position: { x: startX + 6 * gridSize, y: startY + 4 * gridSize },
+    radius: 25,
+    active: true,
+    sprite: '⚰️'
+  });
+  
+  return entities;
+}
+
 // Generate random soul positions
 function generateRandomSouls(count: number): Entity[] {
   const souls: Entity[] = [];
@@ -64,6 +163,7 @@ export function loadQuests(): Quest[] {
       ],
       entities: souls,
       startPosition: { x: 400, y: 300 },
+      startAngle: 0,
       successMessage: `All ${soulCount} souls collected! Check your command count for efficiency.`,
       hints: [
         'Write a loop or algorithm to visit all souls',
@@ -93,6 +193,7 @@ export function loadQuests(): Quest[] {
         { id: 'demon3', type: 'demon', position: { x: 400, y: 450 }, radius: 40, active: true, sprite: '😈' }
       ],
       startPosition: { x: 400, y: 300 },
+      startAngle: 0,
       successMessage: 'All demons have been banished! The realm is safe.',
       hints: [
         'Navigate to each demon location',
@@ -102,8 +203,8 @@ export function loadQuests(): Quest[] {
     },
     {
       id: 'graveyard-resurrection',
-      name: 'Graveyard Resurrection',
-      description: 'Navigate to the graveyard and perform the resurrection ritual',
+      name: 'Graveyard Maze',
+      description: 'Navigate through the graveyard maze to reach the ancient coffin (⚰️), avoiding gravestones (🪦)',
       objectives: [
         {
           type: 'reach',
@@ -111,20 +212,21 @@ export function loadQuests(): Quest[] {
           count: 1,
           current: 0,
           completed: false,
-          description: 'Reach the graveyard'
+          description: 'Reach the ancient coffin (⚰️) at the center'
         }
       ],
-      entities: [
-        { id: 'graveyard', type: 'building', position: { x: 650, y: 500 }, radius: 50, active: true, sprite: '🪦' },
-        { id: 'obstacle1', type: 'obstacle', position: { x: 400, y: 350 }, radius: 30, active: true },
-        { id: 'obstacle2', type: 'obstacle', position: { x: 500, y: 400 }, radius: 30, active: true }
-      ],
-      startPosition: { x: 150, y: 100 },
-      successMessage: 'The ancient one has been resurrected!',
+      entities: createGraveyardMaze(),
+      startPosition: { x: 150, y: 150 },
+      startAngle: 0,
+      successMessage: 'You reached the ancient coffin! The resurrection ritual is complete!',
       hints: [
-        'Navigate around obstacles to reach the graveyard',
-        'The graveyard is at (650, 500)',
-        'Use a combination of summon() and turn commands'
+        'Turtle starts at the graveyard entrance (150, 150)',
+        'Ancient coffin (⚰️) is at the center (400, 300) - purple glow',
+        'Gravestones (🪦) block your path - navigate around them',
+        'The graveyard is a 12x8 grid with walls around it',
+        'Navigate to the coffin to complete the quest automatically',
+        'Try using summon() and twist() to navigate the maze',
+        'Or use haunt(400, 300) to teleport directly (but that\'s cheating!)'
       ]
     }
   ];

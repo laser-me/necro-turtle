@@ -7,6 +7,8 @@ export class Turtle {
   private state: TurtleState;
   private trail: Point[] = [];
   private entities: Entity[] = [];
+  private animationSpeed: number = 50; // 1-100
+  private animationQueue: Array<() => Promise<void>> = [];
 
   constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
     this.canvas = canvas;
@@ -20,6 +22,22 @@ export class Turtle {
       color: '#00ff88',
       lineWidth: 2
     };
+  }
+
+  setAnimationSpeed(speed: number): void {
+    this.animationSpeed = Math.max(0, Math.min(100, speed));
+  }
+
+  async executeAnimations(): Promise<void> {
+    // Always await animations, even at speed 0
+    for (let i = 0; i < this.animationQueue.length; i++) {
+      await this.animationQueue[i]();
+    }
+    this.animationQueue = [];
+  }
+
+  clearAnimationQueue(): void {
+    this.animationQueue = [];
   }
 
   getState(): TurtleState {
@@ -121,19 +139,61 @@ export class Turtle {
 
   // Movement commands
   forward(distance: number): void {
-    // Angle 0 = up (north), so we need to adjust the calculation
-    // Convert angle to radians and adjust so 0 degrees = up
-    const rad = ((this.state.angle - 90) * Math.PI) / 180;
-    const newX = this.state.position.x + distance * Math.cos(rad);
-    const newY = this.state.position.y + distance * Math.sin(rad);
+    const animation = async () => {
+      const rad = ((this.state.angle - 90) * Math.PI) / 180;
+      const targetX = this.state.position.x + distance * Math.cos(rad);
+      const targetY = this.state.position.y + distance * Math.sin(rad);
 
-    if (this.state.penDown) {
-      this.trail.push({ ...this.state.position });
-      this.trail.push({ x: newX, y: newY });
-    }
+      const startPos = { ...this.state.position };
+      let distanceRemaining = Math.abs(distance);
+      const direction = distance >= 0 ? 1 : -1;
 
-    this.state.position = { x: newX, y: newY };
-    this.render();
+      if (this.state.penDown) {
+        this.trail.push({ ...startPos });
+      }
+
+      // Animate in small chunks, checking speed each iteration
+      // If speed is 0, skip animation and jump to target
+      if (this.animationSpeed === 0) {
+        this.state.position = { x: targetX, y: targetY };
+        if (this.state.penDown) {
+          this.trail.push({ x: targetX, y: targetY });
+        }
+        this.render();
+      } else {
+        while (distanceRemaining > 0.1) {
+          // Calculate step size based on current speed (checked each iteration)
+          const stepSize = Math.min(distanceRemaining, this.animationSpeed / 10);
+          
+          this.state.position.x += direction * stepSize * Math.cos(rad);
+          this.state.position.y += direction * stepSize * Math.sin(rad);
+
+          if (this.state.penDown) {
+            this.trail.push({ ...this.state.position });
+          }
+
+          distanceRemaining -= stepSize;
+          this.render();
+          
+          // Delay inversely proportional to speed (faster = shorter delay)
+          const delay = Math.max(1, 100 - this.animationSpeed);
+          await this.sleep(delay);
+        }
+      }
+
+      // Ensure we reach exact target
+      this.state.position = { x: targetX, y: targetY };
+      if (this.state.penDown) {
+        this.trail.push({ x: targetX, y: targetY });
+      }
+      this.render();
+    };
+
+    this.animationQueue.push(animation);
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   backward(distance: number): void {
@@ -141,17 +201,54 @@ export class Turtle {
   }
 
   turnLeft(angle: number): void {
-    this.state.angle -= angle;
-    this.render();
+    const animation = async () => {
+      const steps = Math.max(1, Math.floor(Math.abs(angle) / 10));
+      const stepAngle = -angle / steps;
+
+      for (let i = 0; i < steps; i++) {
+        this.state.angle += stepAngle;
+        this.render();
+        if (this.animationSpeed > 0) {
+          await this.sleep(20);
+        }
+      }
+    };
+
+    this.animationQueue.push(animation);
   }
 
   turnRight(angle: number): void {
-    this.state.angle += angle;
-    this.render();
+    const animation = async () => {
+      const steps = Math.max(1, Math.floor(Math.abs(angle) / 10));
+      const stepAngle = angle / steps;
+
+      for (let i = 0; i < steps; i++) {
+        this.state.angle += stepAngle;
+        this.render();
+        if (this.animationSpeed > 0) {
+          await this.sleep(20);
+        }
+      }
+    };
+
+    this.animationQueue.push(animation);
   }
 
   teleport(x: number, y: number): void {
+    const animation = async () => {
+      this.state.position = { x, y };
+      this.render();
+      if (this.animationSpeed > 0) {
+        await this.sleep(100);
+      }
+    };
+
+    this.animationQueue.push(animation);
+  }
+
+  setPositionAndAngle(x: number, y: number, angle: number): void {
     this.state.position = { x, y };
+    this.state.angle = angle;
     this.render();
   }
 
@@ -187,6 +284,35 @@ export class Turtle {
       lineWidth: 2
     };
     this.trail = [];
+    this.render();
+  }
+
+  /**
+   * Complete cleanup - clears everything including entities and animations
+   */
+  fullCleanup(): void {
+    // Clear trail
+    this.trail = [];
+    
+    // Clear entities
+    this.entities = [];
+    
+    // Clear animation queue
+    this.animationQueue = [];
+    
+    // Reset state to initial
+    this.state = {
+      position: { x: this.canvas.width / 2, y: this.canvas.height / 2 },
+      angle: 0,
+      penDown: true,
+      color: '#00ff88',
+      lineWidth: 2
+    };
+    
+    // Clear canvas completely
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    
+    // Render fresh state
     this.render();
   }
 }

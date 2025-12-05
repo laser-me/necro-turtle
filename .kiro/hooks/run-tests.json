@@ -1,0 +1,8 @@
+{
+  "name": "Run Tests",
+  "description": "Run unit tests on TypeScript file changes",
+  "trigger": "onSave",
+  "filePattern": "**/*.ts",
+  "action": "command",
+  "command": "npm test"
+}

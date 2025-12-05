@@ -1,12 +1,16 @@
+console.log('[GAME MODULE] Loading');
 import type { GameState, Quest, Entity, Point, QuestObjective } from './types';
+console.log('[GAME MODULE] Types imported');
 
 export class GameManager {
   private state: GameState;
 
   constructor() {
+    console.log('[GAME] Constructor start');
     this.state = {
       mode: 'freedraw',
       currentQuest: null,
+      originalEntities: [],
       score: 0,
       soulsCollected: 0,
       demonsBanished: 0,
@@ -14,6 +18,7 @@ export class GameManager {
       commandsUsed: 0,
       entities: []
     };
+    console.log('[GAME] Constructor complete');
   }
 
   getState(): GameState {
@@ -31,7 +36,9 @@ export class GameManager {
   loadQuest(quest: Quest): void {
     this.state.mode = 'quest';
     this.state.currentQuest = quest;
-    this.state.entities = [...quest.entities];
+    // Deep copy entities to preserve original state
+    this.state.originalEntities = quest.entities.map(e => ({ ...e }));
+    this.state.entities = quest.entities.map(e => ({ ...e }));
     this.state.commandsUsed = 0;
   }
 
@@ -58,6 +65,16 @@ export class GameManager {
       this.state.demonsBanished++;
       this.state.score += 20;
       this.updateObjectives('banish', 'demon');
+      return true;
+    }
+    return false;
+  }
+
+  checkReachedBuilding(position: Point): boolean {
+    const building = this.findEntityAt(position, 'building');
+    if (building && building.active) {
+      this.state.score += 50;
+      this.updateObjectives('reach', 'graveyard');
       return true;
     }
     return false;
@@ -133,16 +150,29 @@ export class GameManager {
   reset(): void {
     const mode = this.state.mode;
     const currentQuest = this.state.currentQuest;
+    const originalEntities = this.state.originalEntities;
+    
+    // Reset entities from the original copy (all active)
+    const resetEntities = originalEntities.map(entity => ({ ...entity, active: true }));
     
     this.state = {
       mode,
       currentQuest,
+      originalEntities, // Keep the original entities
       score: 0,
       soulsCollected: 0,
       demonsBanished: 0,
       questsCompleted: 0,
       commandsUsed: 0,
-      entities: currentQuest ? [...currentQuest.entities] : []
+      entities: resetEntities
     };
+
+    // Update quest objectives
+    if (currentQuest) {
+      currentQuest.objectives.forEach(obj => {
+        obj.current = 0;
+        obj.completed = false;
+      });
+    }
   }
 }

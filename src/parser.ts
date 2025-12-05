@@ -1,11 +1,12 @@
 import type { NecromancyAPI } from './necromancy';
+import { Interpreter } from './interpreter';
 
 export class Parser {
-  private api: NecromancyAPI;
+  private interpreter: Interpreter;
   private allowedCommands: Set<string>;
 
   constructor(api: NecromancyAPI) {
-    this.api = api;
+    this.interpreter = new Interpreter(api);
     
     // List of allowed necromancy commands
     this.allowedCommands = new Set([
@@ -18,7 +19,11 @@ export class Parser {
     ]);
   }
 
-  execute(code: string): { success: boolean; message: string } {
+  setLineCallback(callback: (lineNumber: number) => void): void {
+    this.interpreter.setLineCallback(callback);
+  }
+
+  async execute(code: string): Promise<{ success: boolean; message: string }> {
     try {
       // Validate code before execution
       const validation = this.validateCode(code);
@@ -29,25 +34,8 @@ export class Parser {
         };
       }
 
-      // Create a sandboxed environment with only necromancy commands
-      const commands = this.api.getCommands();
-      const commandNames = Object.keys(commands);
-      const commandValues = Object.values(commands);
-
-      // Create function with commands as parameters
-      // Use strict mode and prevent access to global scope
-      const func = new Function(
-        ...commandNames,
-        '"use strict"; ' + code
-      );
-      
-      // Execute with command implementations
-      func(...commandValues);
-
-      return {
-        success: true,
-        message: 'Ritual cast successfully! The spirits obey your commands.'
-      };
+      // Use interpreter for execution with state tracking
+      return await this.interpreter.execute(code);
     } catch (error) {
       return {
         success: false,
@@ -57,6 +45,11 @@ export class Parser {
   }
 
   private validateCode(code: string): { valid: boolean; error?: string } {
+    // Remove comments before validation
+    const codeWithoutComments = code
+      .replace(/\/\/.*$/gm, '') // Remove single-line comments
+      .replace(/\/\*[\s\S]*?\*\//g, ''); // Remove multi-line comments
+
     // Block dangerous patterns
     const dangerousPatterns = [
       /\beval\b/i,
@@ -80,7 +73,7 @@ export class Parser {
     ];
 
     for (const pattern of dangerousPatterns) {
-      if (pattern.test(code)) {
+      if (pattern.test(codeWithoutComments)) {
         return {
           valid: false,
           error: `Forbidden incantation detected: ${pattern.source}. Only necromancy commands are allowed.`
@@ -90,7 +83,7 @@ export class Parser {
 
     // Check that only allowed commands are used (allow basic JS constructs)
     const functionCallPattern = /\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g;
-    const matches = [...code.matchAll(functionCallPattern)];
+    const matches = [...codeWithoutComments.matchAll(functionCallPattern)];
     
     for (const match of matches) {
       const funcName = match[1];

@@ -25,7 +25,7 @@ function init(): void {
   const gameManager = new GameManager();
   const necromancyAPI = new NecromancyAPI(turtle, gameManager);
   const parser = new Parser(necromancyAPI);
-  const uiManager = new UIManager(turtle, gameManager, parser);
+  const uiManager = new UIManager(turtle, gameManager, parser, necromancyAPI);
 
   // Load examples and quests
   const examples = loadExamples();

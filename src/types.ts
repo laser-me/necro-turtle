@@ -51,6 +51,7 @@ export interface Quest {
   objectives: QuestObjective[];
   entities: Entity[];
   startPosition: Point;
+  startAngle: number;
   successMessage: string;
   hints?: string[];
 }
@@ -58,6 +59,7 @@ export interface Quest {
 export interface GameState {
   mode: 'freedraw' | 'quest';
   currentQuest: Quest | null;
+  originalEntities: Entity[]; // Store original entity state for reset
   score: number;
   soulsCollected: number;
   demonsBanished: number;

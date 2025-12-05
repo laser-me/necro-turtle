@@ -194,6 +194,67 @@ body {
   flex: 1;
 }
 
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  color: #bb88ff;
+  font-size: 14px;
+}
+
+.speed-slider {
+  width: 100px;
+  height: 6px;
+  background: rgba(187, 136, 255, 0.3);
+  border-radius: 3px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.speed-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #bb88ff;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 5px #bb88ff;
+}
+
+.speed-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #bb88ff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 5px #bb88ff;
+}
+
+#speed-value {
+  min-width: 30px;
+  text-align: right;
+  font-weight: bold;
+}
+
+.code-editor.executing {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.code-highlight-overlay {
+  position: absolute;
+  left: 17px;
+  right: 17px;
+  background: rgba(0, 255, 136, 0.2);
+  border-left: 3px solid #00ff88;
+  pointer-events: none;
+  z-index: 2;
+  transition: top 0.1s ease;
+}
+
 .game-hud {
   display: flex;
   gap: 20px;
